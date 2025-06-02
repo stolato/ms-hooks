@@ -7,4 +7,5 @@ type Notification struct {
 	Header interface{} `json:"header"`
 	Method string      `json:"method"`
 	Time   time.Time   `json:"time"`
+	Path   string      `json:"path"`
 }

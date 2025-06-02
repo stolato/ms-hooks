@@ -1,16 +1,35 @@
-FROM golang:1.24.2
+# --- BUILD STAGE ---
+FROM golang:1.24.2 AS builder
 
-# Set destination for COPY
+# Define o diretório de trabalho dentro do contêiner de build
 WORKDIR /app
 
-COPY . .
+# Copia os arquivos de módulo para que possam ser cacheados e baixados primeiro
+COPY go.mod go.sum ./
 
-ENV GOPROXY=https://goproxy.cn
-
+# Baixa as dependências. Isso aproveita o cache do Docker.
+# Se go.mod/go.sum não mudarem, esta etapa não será executada novamente.
 RUN go mod download
 
-RUN env GOOS=linux GOARCH=arm go build -o main cmd/main.go
+# Copia o restante do código-fonte
+COPY . .
 
+# Compila a aplicação Go.
+# 'CGO_ENABLED=0' é importante para criar um binário estático,
+# o que o torna independente de bibliotecas C dinâmicas e adequado para imagens "scratch".
+# 'GOOS=linux' e 'GOARCH=arm' são mantidos, assumindo que seu ambiente de destino é ARM Linux.
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -o main ./cmd/main.go
+
+# --- FINAL STAGE ---
+# Usamos uma imagem base minúscula para o binário final.
+# 'scratch' é a menor imagem possível, não contém nada além do que você adiciona.
+FROM scratch
+
+# Copia o binário compilado do estágio 'builder' para a imagem final
+COPY --from=builder /app/main ./main
+
+# Expor a porta que a aplicação vai escutar
 EXPOSE 80
 
+# Comando para executar a aplicação quando o contêiner iniciar
 CMD ["./main"]
