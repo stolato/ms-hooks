@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/zishang520/socket.io/v2/socket"
 	"log"
 	"ms-hooks/models"
@@ -11,27 +13,29 @@ import (
 
 func IniHandler(io *socket.Server) {
 	app := fiber.New()
+	app.Use(logger.New())
+	app.Use(recover2.New())
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(map[string]string{
 			"name":    "MS Hooks",
-			"version": "0.0.1",
+			"version": "1.0.2",
 		})
 	})
 
-	app.Get("/:id", func(c *fiber.Ctx) error {
+	app.Get("/:id/*", func(c *fiber.Ctx) error {
 		return process(c, io)
 	})
 
-	app.Post("/:id", func(c *fiber.Ctx) error {
+	app.Post("/:id/*", func(c *fiber.Ctx) error {
 		return process(c, io)
 	})
 
-	app.Delete("/:id", func(c *fiber.Ctx) error {
+	app.Delete("/:id/*", func(c *fiber.Ctx) error {
 		return process(c, io)
 	})
 
-	app.Put("/:id", func(c *fiber.Ctx) error {
+	app.Put("/:id/*", func(c *fiber.Ctx) error {
 		return process(c, io)
 	})
 
@@ -64,6 +68,7 @@ func organizationData(c *fiber.Ctx) (models.Notification, error) {
 		Header: c.GetReqHeaders(),
 		Method: c.Method(),
 		Time:   time.Now(),
+		Path:   c.Path(),
 	}
 	return notification, nil
 }
