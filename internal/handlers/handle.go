@@ -19,7 +19,7 @@ func IniHandler(io *socket.Server) {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(map[string]string{
 			"name":    "MS Hooks",
-			"version": "1.0.2",
+			"version": "1.0.3",
 		})
 	})
 

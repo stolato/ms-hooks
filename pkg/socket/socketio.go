@@ -17,7 +17,7 @@ func InitSocket() *socket.Server {
 	io := socket.NewServer(nil, nil)
 	http.Handle("/socket.io/", io.ServeHandler(nil))
 	go func() {
-		err := http.ListenAndServe(":8002", nil)
+		err := http.ListenAndServe(":8082", nil)
 		if err != nil {
 			fmt.Println(err.Error())
 		}

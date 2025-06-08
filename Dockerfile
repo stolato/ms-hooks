@@ -18,7 +18,7 @@ COPY . .
 # 'CGO_ENABLED=0' é importante para criar um binário estático,
 # o que o torna independente de bibliotecas C dinâmicas e adequado para imagens "scratch".
 # 'GOOS=linux' e 'GOARCH=arm' são mantidos, assumindo que seu ambiente de destino é ARM Linux.
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -o main ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/main.go
 
 # --- FINAL STAGE ---
 # Usamos uma imagem base minúscula para o binário final.
@@ -29,7 +29,7 @@ FROM scratch
 COPY --from=builder /app/main ./main
 
 # Expor a porta que a aplicação vai escutar
-EXPOSE 80
+EXPOSE 8081
 
 # Comando para executar a aplicação quando o contêiner iniciar
 CMD ["./main"]
